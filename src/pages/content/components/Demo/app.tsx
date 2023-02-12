@@ -1,4 +1,3 @@
-import popAlertAudio from '@assets/audio/mixkit-message-pop-alert-2354.mp3'
 import { useEffect } from 'react'
 
 export default function App() {
@@ -34,97 +33,94 @@ export default function App() {
   //   "https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3"
   // );
 
-  async function updateCachedAsset(
-    cacheName = 'wa2.2306.7',
-    oldAssetURL = 'https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3',
-    audioFile = popAlertAudio
-    // newAssetURL
-  ) {
+  document.querySelector('html').addEventListener('click', () => {
+    console.log('html clicked')
+  })
+
+  const updateCachedAudio = async (audioBase64: string) => {
+    const cacheName = 'wa2.2306.7'
+    const oldAssetURL =
+      'https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3'
+
+    // Test whether the audio plays
+    // const audioElement = new Audio(audioBase64).play()
+
+    // Create a new blob from the base64 string
+    // const audioBlob = new Blob([audioBase64], { type: 'audio/mpeg' })
+    // console.log('content script audioBlob', audioBlob)
+    const audioBlob = audioBase64
+
     // Find and open the cache that contains the asset
     console.log('updateCachedAsset function started')
     const cache = await caches.open(cacheName)
     console.log(`Cache '${cacheName}' was opened: ${cache}`)
 
-    // Create a mock response object using the local mp3 file
-    // Body
-    // const reader = new FileReader();
-    // const blob = new Blob([pop], { type: "text/plain" });
-    // reader.readAsArrayBuffer(blob);
-    // reader.onloadend = () => {
-    //   const response = reader.result;
-    //   // Do something with response object
-    // };
+    // * Get the response from the cache (note: this works)
+    // const inbuiltWhatsappAudioResponse = await fetch(
+    //   'https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3'
+    // )
+    // console.log(`InbuiltWhatsappAudioResponse: `, inbuiltWhatsappAudioResponse)
+    // await cache.delete(oldAssetURL)
+    // await cache.put(oldAssetURL, inbuiltWhatsappAudioResponse)
+    // return
+    // * Reset the audio to the default whatsapp audio
+    // await cache.delete(oldAssetURL)
+    // return
+    // * Confirm
+    // new Audio('/notification_2a485d84012c106acef03b527bb54635.mp3').play()
+    // new Audio('/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3').play() // this is random test
+    // Might need a refresh of the page after clearing the cache
 
-    // import popAlertAudio from "@assets/audio/mixkit-message-pop-alert-2354.mp3";
+    // ---
 
-    console.log(popAlertAudio)
+    // // Create a new audio element
+    // const audioElement = new Audio()
+    // // Set the audio element's source to the blob
+    // audioElement.src = URL.createObjectURL(audioBlob)
+    // console.log('content script audioElement.src', audioElement)
+    // // Play the audio
+    // audioElement.play()
 
-    const convertImportedMp3ToResBody = async (importedMp3: string) => {
-      // Covnert the imported mp3 file from a string to an ArrayBuffer
-      const blob = new Blob([importedMp3], { type: 'audio/mpeg' })
-      console.log(`Blob: `, blob)
-
-      return blob
-      // return blob.arrayBuffer();
-
-      // return new Promise<ArrayBuffer>((resolve) => {
-      //   const reader = new FileReader();
-      //   reader.readAsArrayBuffer(blob);
-      //   reader.onloadend = () => {
-      //     resolve(reader.result as ArrayBuffer);
-      //   };
-      // });
-    }
-    const body = await convertImportedMp3ToResBody(popAlertAudio)
+    console.log(`AudioBlob within updateCachedAudio function: `, audioBlob)
 
     // Options
+    const headers = {
+      'Response-Type': 'basic',
+      'Content-Type': 'audio/mpeg',
+      'Content-Length': '420',
+    } // mpeg3 because whatsapp uses it
+    const status = { status: 200 }
     const myOptions = {
-      status: 200,
-      headers: { 'Response-Type': 'basic', 'Content-Type': 'audio/mpeg3' }, // mpeg3 because whatsapp uses it
-      type: 'basic',
-      url: 'https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3',
+      ...headers,
+      ...status,
     }
-    const response = new Response(body, myOptions)
 
-    console.log(`Reponse: `, response)
+    const body = audioBlob
+    // const body = JSON.stringify(audioBlob.stream())
+
+    const newResponse = new Response(body, myOptions)
+
+    console.log(`Reponse: `, newResponse)
+
+    // An example of what a working response looks like (if written to cache it would work properly)
     const compareBody = await fetch(
       'https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3'
     )
     console.log(`CompareResponse: `, compareBody)
 
-    cache.delete(oldAssetURL)
-
-    cache.put(oldAssetURL, response)
+    await cache.delete(oldAssetURL)
+    await cache.put(oldAssetURL, newResponse)
   }
-
-  // // Listen to messages from the popup
-  // chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  //   if (request.type === "updateCachedAsset") {
-  //     updateCachedAsset();
-  //   }
-  // });
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('message received in content script', request)
-    if (request.type === 'updateCachedAsset') {
-      const requestAudioUnknownType = request.audio
-      console.log(
-        'content script requestAudioUnknownType',
-        requestAudioUnknownType
-      )
+    if (request.type === 'updateCachedAudio') {
+      const audioBase64 = request.audio as string
+      console.log('content script audioBase64', typeof audioBase64)
 
-      const audioBlob = new Blob([request.audio], { type: 'audio/mpeg' })
-      console.log('content script audioBlob', audioBlob)
-
-      // Create a new audio element
-      const audioElement = new Audio()
-      // Set the audio element's source to the blob
-      audioElement.src = URL.createObjectURL(audioBlob)
-      // Play the audio
-      audioElement.play()
-      // updateCachedAsset();
+      updateCachedAudio(audioBase64)
     }
-    sendResponse({ type: 'updateCachedAssetDone' })
+    sendResponse({ type: 'updateCachedAudioDone' })
 
     return true
   })

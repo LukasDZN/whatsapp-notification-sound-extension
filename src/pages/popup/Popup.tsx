@@ -60,7 +60,7 @@ const Popup = () => {
   // }, []);
 
   // ?NOTE: this works
-  const getAudioBlobFromUrl = async (audioUrl: string) => {
+  const getAudioBase64FromLocalUrl = async (audioUrl: string) => {
     // Fetch the audio file given local file URL
     const audioFile = await fetch(audioUrl)
     // Convert the audio file to a blob
@@ -82,31 +82,40 @@ const Popup = () => {
       reader.readAsDataURL(audioBlob)
     })
     console.log('audioBase64', audioBase64)
-
     // Create new Audio object with base64 string and play the audio
-    const audioElement = new Audio(audioBase64 as string).play()
+    // const audioElement = new Audio(audioBase64 as string).play()
 
-    return audioBlob
+    return audioBase64
   }
-  getAudioBlobFromUrl(popAlertAudioUrl)
 
-  // send 'updateCachedAsset' message to the content script
-  const updateCachedAsset = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        type: 'updateCachedAsset',
-        audio: getAudioBlobFromUrl(popAlertAudioUrl),
+  const updateCachedAudio = async () => {
+    const tabs = await new Promise((resolve) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        resolve(tabs)
       })
+    })
+
+    const audio = await getAudioBase64FromLocalUrl(popAlertAudioUrl)
+
+    await new Promise((resolve) => {
+      chrome.tabs.sendMessage(
+        tabs[0].id,
+        {
+          type: 'updateCachedAudio',
+          audio,
+        },
+        resolve
+      )
     })
   }
 
-  const handleSelectAudio = (audio: string) => {
+  const handleSelectAudio = async (audio: string) => {
     // Validate the audio by playing it
     const audioBlob = new Blob([popAlertAudioUrl], { type: 'audio/mpeg' })
     const audioElement = new Audio(audio)
 
     // setSelectedAudio(audio); // Set audio for the current page view
-    updateCachedAsset()
+    await updateCachedAudio()
     // localStorage.setItem("selectedAudio", audio);
   }
 
