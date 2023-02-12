@@ -3,48 +3,48 @@ import {
   UPDATE_COMPLETE_MESSAGE,
   UPDATE_PENDING_MESSAGE,
   UPDATE_REQUEST_MESSAGE,
-} from "./constant";
-import MessageInterpreter from "./interpreter";
+} from './constant'
+import MessageInterpreter from './interpreter'
 
-let needToUpdate = false;
+let needToUpdate = false
 
 export default function initReloadClient({
   watchPath,
   onUpdate,
 }: {
-  watchPath: string;
-  onUpdate: () => void;
+  watchPath: string
+  onUpdate: () => void
 }): WebSocket {
-  const socket = new WebSocket(LOCAL_RELOAD_SOCKET_URL);
+  const socket = new WebSocket(LOCAL_RELOAD_SOCKET_URL)
 
   function sendUpdateCompleteMessage() {
-    socket.send(MessageInterpreter.send({ type: UPDATE_COMPLETE_MESSAGE }));
+    socket.send(MessageInterpreter.send({ type: UPDATE_COMPLETE_MESSAGE }))
   }
 
-  socket.addEventListener("message", (event) => {
-    const message = MessageInterpreter.receive(String(event.data));
+  socket.addEventListener('message', (event) => {
+    const message = MessageInterpreter.receive(String(event.data))
 
     switch (message.type) {
       case UPDATE_REQUEST_MESSAGE: {
         if (needToUpdate) {
-          sendUpdateCompleteMessage();
-          needToUpdate = false;
-          onUpdate();
+          sendUpdateCompleteMessage()
+          needToUpdate = false
+          onUpdate()
         }
-        return;
+        return
       }
       case UPDATE_PENDING_MESSAGE: {
         if (!needToUpdate) {
-          needToUpdate = message.path.includes(watchPath);
+          needToUpdate = message.path.includes(watchPath)
         }
-        return;
+        return
       }
     }
-  });
+  })
 
-  socket.addEventListener("close", () => {
-    console.log("Reload server disconnected.");
-  });
+  socket.addEventListener('close', () => {
+    console.log('Reload server disconnected.')
+  })
 
-  return socket;
+  return socket
 }
