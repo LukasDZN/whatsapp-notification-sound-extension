@@ -5,34 +5,6 @@ export default function App() {
     console.log('content view loaded')
   }, [])
 
-  // async function updateCachedAsset(
-  //   cacheName: string,
-  //   oldAssetURL: string,
-  //   newAssetURL: string
-  // ) {
-  //   console.log("updateCachedAsset function started");
-  //   const cache = await caches.open(cacheName);
-  //   console.log(`Cache '${cacheName}' was opened: ${cache}`);
-
-  //   const cachedResponse = await cache.match(oldAssetURL);
-
-  //   if (cachedResponse) {
-  //     // If the asset is in the cache, fetch the new version from the network and update the cache
-  //     const response = await fetch(newAssetURL);
-  //     console.log(`Replacement for old cache: ${response}`);
-
-  //     cache.delete(oldAssetURL);
-
-  //     cache.put(oldAssetURL, response);
-  //   }
-  // }
-
-  // updateCachedAsset(
-  //   "wa2.2306.7",
-  //   "https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3",
-  //   "https://web.whatsapp.com/sequential-ptt-end_62ed28be622237546fd39f9468a76a49.mp3"
-  // );
-
   document.querySelector('html').addEventListener('click', () => {
     console.log('html clicked')
   })
@@ -56,13 +28,13 @@ export default function App() {
     console.log(`Cache '${cacheName}' was opened: ${cache}`)
 
     // * Get the response from the cache (note: this works)
-    // const inbuiltWhatsappAudioResponse = await fetch(
-    //   'https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3'
-    // )
-    // console.log(`InbuiltWhatsappAudioResponse: `, inbuiltWhatsappAudioResponse)
-    // await cache.delete(oldAssetURL)
-    // await cache.put(oldAssetURL, inbuiltWhatsappAudioResponse)
-    // return
+    const inbuiltWhatsappAudioResponse = await fetch(
+      'https://web.whatsapp.com/sequential-ptt-middle_7fa161964e93db72b8d00ae22189d75f.mp3'
+    )
+    console.log(`InbuiltWhatsappAudioResponse: `, inbuiltWhatsappAudioResponse)
+    await cache.delete(oldAssetURL)
+    await cache.put(oldAssetURL, inbuiltWhatsappAudioResponse)
+    return
     // * Reset the audio to the default whatsapp audio
     // await cache.delete(oldAssetURL)
     // return
@@ -95,7 +67,21 @@ export default function App() {
       ...status,
     }
 
-    const body = audioBlob
+    // inbuiltWhatsappAudioResponse data:
+
+    // Headers:
+    // content-type: audio/mpeg3
+    // content-encoding: br
+
+    // Preview -> "Preview not available"
+
+    // Response-Type: basic
+    // Content-Type: audio/mpeg3
+    // Content-Length: 35959
+    // Vary Header: Accept-Encoding, Referer, Accept-Encoding
+
+    // const body = audioBlob
+    const body = JSON.stringify(audioBlob)
     // const body = JSON.stringify(audioBlob.stream())
 
     const newResponse = new Response(body, myOptions)
@@ -110,6 +96,16 @@ export default function App() {
 
     await cache.delete(oldAssetURL)
     await cache.put(oldAssetURL, newResponse)
+
+    // * Read cached response body
+    // const a = await fetch('/notification_2a485d84012c106acef03b527bb54635.mp3')
+    // const b = await a.text() // returns string: 'data:audio/mpeg;base64,SUQzAgAAAAAfd...'
+    // * Play cached response body (works)
+    // new Audio(b).play()
+    // ! However, new Audio('/notification_2a485d84012c106acef03b527bb54635.mp3') does not work
+    // ! if it did work, then perhaps the whole script would work
+    // q: To what format should the audio be converted to in order to play properly using .play()?
+    // a: mpeg3
   }
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
