@@ -22,10 +22,17 @@ export default function App() {
       const regex = /notification_.+\.mp3/
       return regex.test(asset.url)
     })
-    const assetUrl = asset.url
+    // Sometimes whatsapp fails to cache an audio asset in the first place
+    // thus leaving the asset.url undefined. In that case, fallback to
+    // hardcoded URL
+    const assetUrl =
+      asset?.url ||
+      'https://web.whatsapp.com/notification_2a485d84012c106acef03b527bb54635.mp3'
 
     const extensionAudioResponse = await fetch(
-      extensionIdentifierUrl + selectedAudioUrl
+      // remove '/' from the end of URL because it is already
+      // present in the beginning of selectedAudioUrl
+      extensionIdentifierUrl.slice(0, -1) + selectedAudioUrl
     )
 
     const body = extensionAudioResponse.body

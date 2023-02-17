@@ -1,10 +1,10 @@
-import popAlertAudioUrl from '@assets/audio/mixkit-message-pop-alert-2354.mp3'
 import guitarAlertUrl from '@assets/audio/mixkit-guitar-notification-alert-2320.wav'
+import popAlertAudioUrl from '@assets/audio/mixkit-message-pop-alert-2354.mp3'
 import positiveAlertUrl from '@assets/audio/mixkit-positive-notification-951.wav'
 import startAlertUrl from '@assets/audio/mixkit-software-interface-start-2574.wav'
 import logo from '@assets/img/logo.svg'
 import '@pages/popup/Popup.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // Get unique extension string (URL)
 const extensionIdentifierUrl = chrome.runtime.getURL('')
@@ -27,16 +27,16 @@ const audioFilesMapping = [
 
 const Popup = () => {
   const [selectedAudioUrl, setselectedAudioUrl] = useState('')
-  const [audio, setAudio] = useState(null)
 
-  // useEffect(() => {
-  //   const savedAudio = localStorage.getItem("selectedAudioUrl");
-  //   if (savedAudio) {
-  //     setselectedAudioUrl(savedAudio);
-  //   }
-  // }, []);
+  // Get saved audio from local storage and highlight the button
+  useEffect(() => {
+    const savedAudio = localStorage.getItem('selectedAudioUrl')
+    if (savedAudio) {
+      setselectedAudioUrl(savedAudio)
+    }
+  }, [])
 
-  const updateCachedAudio = async () => {
+  const updateCachedAudio = async (audioUrl: string) => {
     // Get tab to send message to
     const openTabs = await new Promise((resolve) => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -51,13 +51,25 @@ const Popup = () => {
         {
           type: 'updateCachedAudio',
           extensionIdentifierUrl: extensionIdentifierUrl,
-          selectedAudioUrl: selectedAudioUrl,
+          selectedAudioUrl: audioUrl,
         },
         resolve
       )
     })
   }
 
+  const handleSelectAudio = async (audioUrl: string) => {
+    setselectedAudioUrl(audioUrl) // Set audio for the current page view
+    await updateCachedAudio(audioUrl)
+    localStorage.setItem('selectedAudioUrl', audioUrl)
+  }
+
+  const handlePlayAudio = (audioUrl: string) => {
+    const audioElement = new Audio(audioUrl)
+    audioElement.play()
+  }
+
+  // TODO - Add upload audio feature
   // CLick button to upload mp3 to local extension directory
   // const handleUploadAudio = async (e) => {
   //   const file = e.target.files[0];
@@ -67,40 +79,36 @@ const Popup = () => {
   //     await updateCachedAudio(audio);
   //   };
 
-  const handleSelectAudio = async (audio: string) => {
-    // setSelectedAudio(audio); // Set audio for the current page view
-    await updateCachedAudio()
-    // localStorage.setItem("selectedAudio", audio);
-  }
-
-  const handlePlayAudio = (file: string) => {
-    const audioElement = new Audio(file)
-    // setAudio(audioElement)
-    audioElement.play()
-  }
-
   return (
     <div className="App">
-      <header className="App-header">
+      <header>
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Select notification audio</h1>
-        {audioFilesMapping.map((audio) => (
-          <div
-            key={audio.fileUrl}
-            className={`audio-container ${
-              selectedAudioUrl === audio.fileUrl ? 'selected' : ''
-            }`}
-          >
-            <button onClick={() => handlePlayAudio(audio.fileUrl)}>Play</button>
-            <button onClick={() => handleSelectAudio(audio.fileUrl)}>
-              Select
-            </button>
-            <p>{audio.displayName}</p>
-          </div>
-        ))}
-        {/* This could be a google form */}
-        <a href="www.testpage.com">Get in touch</a>
       </header>
+      {audioFilesMapping.map((audio) => (
+        <div
+          key={audio.fileUrl}
+          className={`audio-container ${
+            selectedAudioUrl === audio.fileUrl ? 'selected' : ''
+          }`}
+        >
+          <h2>{audio.displayName}</h2>
+          <button
+            className="left-button"
+            onClick={() => handlePlayAudio(audio.fileUrl)}
+          >
+            Play
+          </button>
+          <button
+            className="right-button"
+            onClick={() => handleSelectAudio(audio.fileUrl)}
+          >
+            Select
+          </button>
+        </div>
+      ))}
+      {/* This could be a google form */}
+      {/* <a href="www.testpage.com">Get in touch</a> */}
     </div>
   )
 }
