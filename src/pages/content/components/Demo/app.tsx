@@ -58,5 +58,5 @@ export default function App() {
     return true // Needed to ensure that the connection is not closed prematurely
   })
 
-  return
+  return <></> // must return something, otherwise it will throw an error
 }

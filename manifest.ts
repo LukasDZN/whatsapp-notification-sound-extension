@@ -12,18 +12,17 @@ const manifest: chrome.runtime.ManifestV3 = {
   // background: { service_worker: "src/pages/background/index.js" },
   action: {
     default_popup: 'src/pages/popup/index.html',
-    default_icon: 'icon-34.png',
+    default_icon: 'assets/svg/imgWhatsound_logo_500x500_v1.chunk.svg',
   },
   // chrome_url_overrides: {
   //   newtab: "src/pages/newtab/index.html",
   // },
-  icons: {
-    '128': 'icon-128.png',
-  },
+  // icons: {
+  //   '128': 'icon-128.png',
+  // },
   content_scripts: [
     {
-      matches: [`http://*/*`, `https://*/*`, `<all_urls>`],
-      // matches: ['https://web.whatsapp.com'],
+      matches: ['https://web.whatsapp.com/*'],
       js: ['src/pages/content/index.js'],
       css: ['assets/css/contentStyle.chunk.css'],
     },
@@ -34,11 +33,10 @@ const manifest: chrome.runtime.ManifestV3 = {
       resources: [
         'assets/js/*.js',
         'assets/css/*.css',
-        'icon-128.png',
-        'icon-34.png',
-        'assets/mp3/audioMixkit-message-pop-alert-2354.chunk.mp3',
+        'assets/mp3/*.mp3',
+        'assets/wav/*.wav',
       ],
-      matches: ['*://*/*', '<all_urls>'],
+      matches: ['https://web.whatsapp.com/*'],
     },
   ],
 }

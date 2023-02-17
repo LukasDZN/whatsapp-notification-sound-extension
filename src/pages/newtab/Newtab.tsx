@@ -1,5 +1,5 @@
 import React from 'react'
-import logo from '@assets/img/logo.svg'
+import logo from '@assets/img/whatsound_logo_500x500_v1.svg'
 import '@pages/newtab/Newtab.css'
 import '@pages/newtab/Newtab.scss'
 
