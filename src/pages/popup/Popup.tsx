@@ -1,52 +1,57 @@
 import popAlertAudioUrl from '@assets/audio/mixkit-message-pop-alert-2354.mp3'
+import guitarAlertUrl from '@assets/audio/mixkit-guitar-notification-alert-2320.wav'
+import positiveAlertUrl from '@assets/audio/mixkit-positive-notification-951.wav'
+import startAlertUrl from '@assets/audio/mixkit-software-interface-start-2574.wav'
 import logo from '@assets/img/logo.svg'
 import '@pages/popup/Popup.css'
 import { useState } from 'react'
 
-const audioFiles = [
-  { name: 'Pop', file: popAlertAudioUrl },
-  // {
-  //   name: "Chill guitar",
-  //   file: "./audioFiles/mixkit-guitar-notification-alert-2320.wav",
-  // },
-  // {
-  //   name: "Positive",
-  //   file: "./audioFiles/mixkit-positive-notification-951.wav",
-  // },
-  // {
-  //   name: "Start",
-  //   file: "./audioFiles/mixkit-software-interface-start-2574.wav",
-  // },
+// Get unique extension string (URL)
+const extensionIdentifierUrl = chrome.runtime.getURL('')
+
+const audioFilesMapping = [
+  { displayName: 'Pop', fileUrl: popAlertAudioUrl },
+  {
+    displayName: 'Chill guitar',
+    fileUrl: guitarAlertUrl,
+  },
+  {
+    displayName: 'Positive',
+    fileUrl: positiveAlertUrl,
+  },
+  {
+    displayName: 'Start',
+    fileUrl: startAlertUrl,
+  },
 ]
 
-// src/pages/popup/audioFiles/mixkit-guitar-notification-alert-2320.wav
-
 const Popup = () => {
-  const [selectedAudio, setSelectedAudio] = useState('')
+  const [selectedAudioUrl, setselectedAudioUrl] = useState('')
   const [audio, setAudio] = useState(null)
 
   // useEffect(() => {
-  //   const savedAudio = localStorage.getItem("selectedAudio");
+  //   const savedAudio = localStorage.getItem("selectedAudioUrl");
   //   if (savedAudio) {
-  //     setSelectedAudio(savedAudio);
+  //     setselectedAudioUrl(savedAudio);
   //   }
   // }, []);
 
   const updateCachedAudio = async () => {
-    const tabs = await new Promise((resolve) => {
+    // Get tab to send message to
+    const openTabs = await new Promise((resolve) => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         resolve(tabs)
       })
     })
 
-    // const audio = await getAudioBase64FromLocalUrl(popAlertAudioUrl)
-
+    // Send message to content script
     await new Promise((resolve) => {
       chrome.tabs.sendMessage(
-        tabs[0].id,
+        openTabs[0].id,
         {
           type: 'updateCachedAudio',
-          audio,
+          extensionIdentifierUrl: extensionIdentifierUrl,
+          selectedAudioUrl: selectedAudioUrl,
         },
         resolve
       )
@@ -79,21 +84,22 @@ const Popup = () => {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <h1>Select notification audio</h1>
-        {audioFiles.map((audio) => (
+        {audioFilesMapping.map((audio) => (
           <div
-            key={audio.file}
+            key={audio.fileUrl}
             className={`audio-container ${
-              selectedAudio === audio.file ? 'selected' : ''
+              selectedAudioUrl === audio.fileUrl ? 'selected' : ''
             }`}
           >
-            <button onClick={() => handlePlayAudio(audio.file)}>Play</button>
-            <button onClick={() => handleSelectAudio(audio.file)}>
+            <button onClick={() => handlePlayAudio(audio.fileUrl)}>Play</button>
+            <button onClick={() => handleSelectAudio(audio.fileUrl)}>
               Select
             </button>
-            <p>{audio.name}</p>
+            <p>{audio.displayName}</p>
           </div>
         ))}
-        <a href="www.testpage.com">Go to extension page</a>
+        {/* This could be a google form */}
+        <a href="www.testpage.com">Get in touch</a>
       </header>
     </div>
   )

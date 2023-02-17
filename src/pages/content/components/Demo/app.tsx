@@ -1,5 +1,7 @@
 export default function App() {
-  const updateCachedAudio = async () => {
+  let extensionIdentifierUrl: string
+
+  const updateCachedAudio = async (selectedAudioUrl: string) => {
     // Get the cache name which has the notification audio asset
     const cacheNames = await caches.keys()
     // Find the cache that contains the asset
@@ -22,32 +24,31 @@ export default function App() {
     })
     const assetUrl = asset.url
 
-    // Get unique extension string (URL)
-    chrome.runtime.getURL(
-      'assets/mp3/audioMixkit-message-pop-alert-2354.chunk.mp3'
-    )
-
     const extensionAudioResponse = await fetch(
-      'chrome-extension://kfljpifignclbjlanpifanjfimepkibk/assets/mp3/audioMixkit-message-pop-alert-2354.chunk.mp3'
+      extensionIdentifierUrl + selectedAudioUrl
     )
 
     const body = extensionAudioResponse.body
 
+    // Create a new mock response with the updated audio
+    // to replace the old one in the cache
     const newResponse = new Response(body)
 
     await cache.delete(assetUrl)
-    await cache.put(assetUrl, extensionAudioResponse)
+    await cache.put(assetUrl, newResponse)
   }
 
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log('message received in content script', request)
+
     if (request.type === 'updateCachedAudio') {
-      updateCachedAudio()
+      extensionIdentifierUrl = request.extensionIdentifierUrl
+      updateCachedAudio(request.selectedAudioUrl)
     }
 
     sendResponse({ type: 'updateCachedAudioDone' })
 
-    return true
+    return true // Needed to ensure that the connection is not closed prematurely
   })
 
   return
