@@ -36,8 +36,9 @@ const manifest: chrome.runtime.ManifestV3 = {
         'assets/css/*.css',
         'icon-128.png',
         'icon-34.png',
+        'assets/mp3/audioMixkit-message-pop-alert-2354.chunk.mp3',
       ],
-      matches: ['*://*/*'],
+      matches: ['*://*/*', '<all_urls>'],
     },
   ],
 }

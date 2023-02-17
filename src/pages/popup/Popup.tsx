@@ -32,35 +32,6 @@ const Popup = () => {
   //   }
   // }, []);
 
-  // ?NOTE: this works
-  const getAudioBase64FromLocalUrl = async (audioUrl: string) => {
-    // Fetch the audio file given local file URL
-    const audioFile = await fetch(audioUrl)
-    // Convert the audio file to a blob
-    const audioBlob = await audioFile.blob() // send this to content script
-    // // Create a new audio element
-    // const audioElement = new Audio()
-    // // Set the audio element's source to the blob
-    // audioElement.src = URL.createObjectURL(audioBlob)
-    // // Play the audio
-    // audioElement.play()
-
-    // ---
-
-    // Convert the blob to a base64 string
-    const audioBase64 = await new Promise((resolve) => {
-      const reader = new FileReader()
-      reader.onloadend = () => resolve(reader.result)
-      // converts the blob to base64 and calls onload
-      reader.readAsDataURL(audioBlob)
-    })
-    console.log('audioBase64', audioBase64)
-    // Create new Audio object with base64 string and play the audio
-    // const audioElement = new Audio(audioBase64 as string).play()
-
-    return audioBase64
-  }
-
   const updateCachedAudio = async () => {
     const tabs = await new Promise((resolve) => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -68,7 +39,7 @@ const Popup = () => {
       })
     })
 
-    const audio = await getAudioBase64FromLocalUrl(popAlertAudioUrl)
+    // const audio = await getAudioBase64FromLocalUrl(popAlertAudioUrl)
 
     await new Promise((resolve) => {
       chrome.tabs.sendMessage(
@@ -82,11 +53,16 @@ const Popup = () => {
     })
   }
 
-  const handleSelectAudio = async (audio: string) => {
-    // Validate the audio by playing it
-    const audioBlob = new Blob([popAlertAudioUrl], { type: 'audio/mpeg' })
-    const audioElement = new Audio(audio)
+  // CLick button to upload mp3 to local extension directory
+  // const handleUploadAudio = async (e) => {
+  //   const file = e.target.files[0];
+  //   const reader = new FileReader();
+  //   reader.onload = async (e) => {
+  //     const audio = e.target.result;
+  //     await updateCachedAudio(audio);
+  //   };
 
+  const handleSelectAudio = async (audio: string) => {
     // setSelectedAudio(audio); // Set audio for the current page view
     await updateCachedAudio()
     // localStorage.setItem("selectedAudio", audio);
