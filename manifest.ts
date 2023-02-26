@@ -10,9 +10,14 @@ const manifest: chrome.runtime.ManifestV3 = {
   description: packageJson.description,
   // options_page: "src/pages/options/index.html",
   // background: { service_worker: "src/pages/background/index.js" },
+  // icons: {
+  //   '16': 'assets/png/imgWhatsound_logo.chunk.png',
+  //   '48': 'assets/png/imgWhatsound_logo.chunk.png',
+  //   '128': 'assets/png/imgWhatsound_logo.chunk.png',
+  // },
   action: {
     default_popup: 'src/pages/popup/index.html',
-    default_icon: 'assets/svg/imgWhatsound_logo_500x500_v1.chunk.svg',
+    default_icon: 'assets/png/imgWhatsound_logo.chunk.png',
   },
   // chrome_url_overrides: {
   //   newtab: "src/pages/newtab/index.html",

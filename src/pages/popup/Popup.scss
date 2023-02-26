@@ -1,56 +1,107 @@
+// Create outline variable
+$outline: .1rem solid #1f343e;
+$outline-soft: .05rem solid #1f343e;
+$border-radius: 10px;
+$transition: all .25s ease-in-out;
+$shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
+$green: #7FAE71;
+$font: 'Roboto', 'VT323', sans-serif;
+
+// Extendable hover
+@mixin hover {
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 3px 3px 4px #b5b5b5;
+    background-color: #ffa5a5;
+    color: #2e2e2e;
+    cursor: pointer;
+  }
+}
+
 .App {
-  position: absolute;
   top: 0px;
   bottom: 0px;
   left: 0px;
   right: 0px;
   text-align: center;
   height: 100%;
-  padding: 10px;
-  background-color: #92afea;
+  margin: 0;
+  padding: 1.5rem 0.9rem 0.5rem 0.9rem;
 }
 
 .App-logo {
-  height: 160px;
-  pointer-events: auto;
-  outline: 1px solid #020406;
+  height: 100px;
+  cursor: pointer;
   padding: 0px;
+  outline: $outline;
+  border-radius: $border-radius;
+  transition: $transition;
+  // Add hover mixin
+  @include hover;
 }
 
 /* custom CSS */
 
-audio-container {
+#titleInstructions {
+  text-align: left;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+
+li {
+  margin-bottom: 0.25rem;
+}
+
+#get-in-touch {
+  text-decoration: none;
+  color: #000000;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 4rem;
+  margin-bottom: 0.6rem;
+  // outline: $outline;
+  // @include hover;
+  // transition: $transition;
+}
+
+#get-in-touch:hover {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.audio-container {
   background-color: white;
   box-shadow: 5px 5px 5px #aaaaaa;
-  border-radius: 10px;
-  border: 2px solid #907fcd;
-  padding: 10px;
+  border-radius: $border-radius;
+  margin: 0.75rem 0 0.75rem 0;
+  padding: 0.5rem;
+  outline: $outline;
 }
 
 /* selected div style */
 h2 {
-  background-color: #f5d0c6;
-  padding: 6px 4px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  font-size: 0.9rem;
+  padding: 0.25rem;
+  margin: 0;
+  font-family: $font;
 }
 
 .button {
   display: inline-block;
-  padding: 4px 14px;
-  background-color: #ffcece;
+  padding: 0.1rem;
+  padding: 0.25rem;
+  width: 50%;
+  background-color: #fff6ce;
   border: none;
-  border-radius: 30px;
+  outline: $outline-soft;
   color: #2e2e2e;
-  font-size: 24px;
+  font-size: 0.9rem;
   font-weight: bold;
+  text-transform: uppercase;
   text-align: center;
   text-decoration: none;
-  text-shadow: 1px 1px 1px #b5b5b5;
-  box-shadow: 2px 2px 3px #b5b5b5;
-  transition: all 0.3s ease;
 }
 
 .button-left {
@@ -64,22 +115,65 @@ h2 {
   border-bottom-left-radius: 0;
 }
 
-.button:hover,
-.button:focus {
-  transform: translateY(-3px);
+.button:hover {
+  transform: translateY(-1px);
   box-shadow: 3px 3px 4px #b5b5b5;
-  background-color: #ffa5a5;
+  background-color: #cdffa5;
   color: #2e2e2e;
   cursor: pointer;
 }
 
 .button:active,
 .selected {
-  transform: translateY(0px);
-  box-shadow: none;
-  background-color: #d17a7a;
-  color: #ffffff;
+  background-color: #907fcd;
+  color: #fff;
 }
+
+// .button:active,
+// .selected {
+//   position: relative;
+// }
+
+// .button:active,
+// .selected::before,
+// .button:active,
+// .selected::after {
+//   content: '';
+//   position: absolute;
+//   top: -0.4rem;
+//   left: -0.35rem;
+//   right: -0.35rem;
+//   bottom: -0.4rem;
+//   border: 6px solid #94db7e;
+//   transition: all 0.5s;
+//   animation: clippath 3s infinite linear;
+//   border-radius: $border-radius;
+// }
+
+// .button:active,
+// .selected::after {
+//   animation: clippath 3s infinite -1.5s linear;
+// }
+
+// @keyframes clippath {
+
+//   0%,
+//   100% {
+//     clip-path: inset(0 0 94% 0);
+//   }
+
+//   25% {
+//     clip-path: inset(0 94% 0 0);
+//   }
+
+//   50% {
+//     clip-path: inset(94% 0 0 0);
+//   }
+
+//   75% {
+//     clip-path: inset(0 0 0 94%);
+//   }
+// }
 
 //
 

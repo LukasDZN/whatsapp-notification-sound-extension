@@ -5,7 +5,7 @@
   "description": "An extension that allows you to change the notification sound of WhatsApp Web.",
   "action": {
     "default_popup": "src/pages/popup/index.html",
-    "default_icon": "assets/svg/imgWhatsound_logo_500x500_v1.chunk.svg"
+    "default_icon": "assets/png/imgWhatsound_logo.chunk.png"
   },
   "content_scripts": [
     {
