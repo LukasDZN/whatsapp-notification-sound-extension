@@ -41,19 +41,22 @@ export default function App() {
     // to replace the old one in the cache
     const newResponse = new Response(body)
 
+    // Update cache with the new audio
     await cache.delete(assetUrl)
     await cache.put(assetUrl, newResponse)
   }
 
+  // Listen to messages from the popup.tsx
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('message received in content script', request)
-
+    console.log('message received. message type: ', request.type)
     if (request.type === 'updateCachedAudio') {
       extensionIdentifierUrl = request.extensionIdentifierUrl
       updateCachedAudio(request.selectedAudioUrl)
+      sendResponse({ type: 'updateCachedAudioDone' })
+    } else if (request.type === 'checkIfWhatsAppWeb') {
+      const isWhatsAppWeb = window.location.href.includes('web.whatsapp.com')
+      sendResponse({ isWhatsAppWeb: isWhatsAppWeb })
     }
-
-    sendResponse({ type: 'updateCachedAudioDone' })
 
     return true // Needed to ensure that the connection is not closed prematurely
   })

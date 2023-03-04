@@ -26,41 +26,57 @@ const audioFilesMapping = [
 ]
 
 const Popup = () => {
-  const [selectedAudioUrl, setselectedAudioUrl] = useState('')
-
-  // Get saved audio from local storage and highlight the button
+  const [openTab, setOpenTab] = useState(0)
+  // Check if the extension is opened within WhatsApp web tab.
+  // (otherwise, it will not work)
+  const [isWhatsAppWeb, setIsWhatsAppWeb] = useState(false)
+  // Get and set tab to send message to
+  console.log('should start useEffect')
   useEffect(() => {
     const savedAudio = localStorage.getItem('selectedAudioUrl')
     if (savedAudio) {
       setselectedAudioUrl(savedAudio)
     }
+
+    console.log('useEffect starting')
+    const checkIsWhatsAppWeb = async () => {
+      console.log(1)
+      // Get tab to send message to
+      const openTabs = await new Promise((resolve) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          resolve(tabs)
+        })
+      })
+      setOpenTab(openTabs[0].id)
+
+      console.log(2)
+
+      const response = await sendMessageToContentScript(openTab, {
+        type: 'checkIfWhatsAppWeb',
+      })
+      console.log(response)
+      response.isWhatsAppWeb === 'true'
+        ? setIsWhatsAppWeb(true)
+        : setIsWhatsAppWeb(false)
+    }
+    checkIsWhatsAppWeb()
   }, [])
 
-  const updateCachedAudio = async (audioUrl: string) => {
-    // Get tab to send message to
-    const openTabs = await new Promise((resolve) => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        resolve(tabs)
-      })
-    })
+  console.log('openTab: ', openTab)
+  console.log('isWhatsAppWeb: ', isWhatsAppWeb)
 
-    // Send message to content script
-    await new Promise((resolve) => {
-      chrome.tabs.sendMessage(
-        openTabs[0].id,
-        {
-          type: 'updateCachedAudio',
-          extensionIdentifierUrl: extensionIdentifierUrl,
-          selectedAudioUrl: audioUrl,
-        },
-        resolve
-      )
-    })
-  }
+  // Display currently selected audio
+  const [selectedAudioUrl, setselectedAudioUrl] = useState('')
 
   const handleSelectAudio = async (audioUrl: string) => {
-    setselectedAudioUrl(audioUrl) // Set audio for the current page view
-    await updateCachedAudio(audioUrl)
+    // Set audio for the current page view
+    setselectedAudioUrl(audioUrl)
+    // Update cached audio
+    sendMessageToContentScript(openTab, {
+      type: 'updateCachedAudio',
+      extensionIdentifierUrl: extensionIdentifierUrl,
+      selectedAudioUrl: audioUrl,
+    })
     localStorage.setItem('selectedAudioUrl', audioUrl)
   }
 
@@ -79,42 +95,61 @@ const Popup = () => {
   //     await updateCachedAudio(audio);
   //   };
 
+  const renderAudioButtons = () => {
+    return audioFilesMapping.map((audio) => (
+      <div
+        key={audio.fileUrl}
+        className={`audio-container ${
+          selectedAudioUrl === audio.fileUrl ? 'selected' : ''
+        }`}
+      >
+        <h2>{audio.displayName} &#9835;</h2>
+        <button
+          className="button button-left"
+          onClick={() => handlePlayAudio(audio.fileUrl)}
+        >
+          Play
+        </button>
+        {selectedAudioUrl !== audio.fileUrl && (
+          <button
+            className="button button-right"
+            onClick={() => handleSelectAudio(audio.fileUrl)}
+          >
+            Select
+          </button>
+        )}
+      </div>
+    ))
+  }
+
+  const renderInstructions = () => {
+    return (
+      <div id="instructions">
+        <h2>Please navigate to a WhatsApp Web page to change the settings!</h2>
+        <p>
+          <i>(or refresh the page if you are already there)</i>
+        </p>
+      </div>
+    )
+  }
+
+  const renderIntro = () => {
+    return (
+      <div id="titleInstructions">
+        <ol>
+          <li>Select notification audio</li>
+          <li>Refresh WhatsApp web page</li>
+          <li>Enjoy!</li>
+        </ol>
+      </div>
+    )
+  }
+
   return (
     <div className="App">
-      <header>
-        <img src={logo} className="App-logo" alt="logo" />
-        <div id="titleInstructions">
-          <ol>
-            <li>Select notification audio</li>
-            <li>Refresh WhatsApp web page</li>
-            <li>Enjoy!</li>
-          </ol>
-        </div>
-      </header>
-      {audioFilesMapping.map((audio) => (
-        <div
-          key={audio.fileUrl}
-          className={`audio-container ${
-            selectedAudioUrl === audio.fileUrl ? 'selected' : ''
-          }`}
-        >
-          <h2>{audio.displayName} &#9835;</h2>
-          <button
-            className="button button-left"
-            onClick={() => handlePlayAudio(audio.fileUrl)}
-          >
-            Play
-          </button>
-          {selectedAudioUrl !== audio.fileUrl && (
-            <button
-              className="button button-right"
-              onClick={() => handleSelectAudio(audio.fileUrl)}
-            >
-              Select
-            </button>
-          )}
-        </div>
-      ))}
+      <img src={logo} className="App-logo" alt="logo" />
+      {isWhatsAppWeb && renderIntro()}
+      {isWhatsAppWeb ? renderAudioButtons() : renderInstructions()}
       <address>
         <a id="get-in-touch" href="mailto:dzenk.lukas@gmail.com" target="_top">
           {'>'}Get in touch{'<'}
@@ -124,6 +159,18 @@ const Popup = () => {
   )
 }
 
+const sendMessageToContentScript = async (
+  openTab: number,
+  messageObject: object
+): Promise<{ [key: string]: string }> => {
+  console.log('sendMessageToContentScript called: ', openTab, messageObject)
+
+  return new Promise((resolve) => {
+    chrome.tabs.sendMessage(openTab, messageObject, resolve)
+  })
+}
+
+// Volume slider
 {
   /* <button className="button-volume">
             <input
