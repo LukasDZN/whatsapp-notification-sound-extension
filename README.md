@@ -16,7 +16,7 @@
 ## Adding a new mp3
 
 1. Add the mp3 file to the `src/assets/audio` folder
-2. 
+2. Add import to content script as well as mapping object.
 
 ## Table of Contents
 
