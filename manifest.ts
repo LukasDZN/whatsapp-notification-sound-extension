@@ -5,7 +5,8 @@ import packageJson from './package.json'
  */
 const manifest: chrome.runtime.ManifestV3 = {
   manifest_version: 3,
-  name: packageJson.name,
+  // name: packageJson.name,
+  name: 'WhatSound - Change WhatsApp Web notification sound',
   version: packageJson.version,
   description: packageJson.description,
   // options_page: "src/pages/options/index.html",
