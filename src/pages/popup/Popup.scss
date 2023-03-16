@@ -1,10 +1,10 @@
 // Create outline variable
-$outline: .1rem solid #1f343e;
-$outline-soft: .05rem solid #1f343e;
+$outline: 0.1rem solid #1f343e;
+$outline-soft: 0.05rem solid #1f343e;
 $border-radius: 10px;
-$transition: all .25s ease-in-out;
+$transition: all 0.25s ease-in-out;
 $shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
-$green: #7FAE71;
+$green: #7fae71;
 $font: 'Roboto', 'VT323', sans-serif;
 
 // Extendable hover
@@ -18,10 +18,11 @@ $font: 'Roboto', 'VT323', sans-serif;
   }
 }
 
-html, body {
+html,
+body {
   min-height: 600px;
   height: 80%;
-  overflow: auto
+  overflow: auto;
 }
 
 .App {
@@ -194,7 +195,7 @@ h2 {
 // }
 
 // ========================================================
-// CUSTOM SCROLLBAR 
+// CUSTOM SCROLLBAR
 // ========================================================
 
 /* Reset default scrollbar style */

@@ -62,7 +62,7 @@ const Popup = () => {
   // (otherwise, it will not work)
   const [openTabId, setOpenTabId] = useState(0)
   const [isWhatsAppWeb, setIsWhatsAppWeb] = useState(false)
-  
+
   // Get and set tab to send message to
   useEffect(() => {
     const savedAudio = localStorage.getItem('selectedAudioUrl')
@@ -154,7 +154,9 @@ const Popup = () => {
       <div id="instructions">
         <h2>Please go to WhatsApp Web page to change the settings!</h2>
         <p>
-          <i>(or <u>refresh</u> the page if you are already there)</i>
+          <i>
+            (or <u>refresh</u> the page if you are already there)
+          </i>
         </p>
       </div>
     )
@@ -164,11 +166,17 @@ const Popup = () => {
     return (
       <div id="titleInstructions">
         <ol>
-          <li><u>Select</u> notification audio</li>
-          <li><u>Refresh</u> WhatsApp web page</li>
+          <li>
+            <u>Select</u> notification audio
+          </li>
+          <li>
+            <u>Refresh</u> WhatsApp web page
+          </li>
           <li>Enjoy!</li>
         </ol>
-        <p id='reset-audio-tip'>To reset audio to default, please clear the browser cache.</p>
+        <p id="reset-audio-tip">
+          To reset audio to default, please clear the browser cache.
+        </p>
       </div>
     )
   }
