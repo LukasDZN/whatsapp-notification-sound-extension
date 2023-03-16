@@ -18,10 +18,14 @@ $font: 'Roboto', 'VT323', sans-serif;
   }
 }
 
-html,
 body {
-  min-height: 600px;
-  height: 80%;
+  width: 300px;
+}
+
+body,
+html {
+  height: fit-content;
+  max-height: 600px;
   overflow: auto;
 }
 
