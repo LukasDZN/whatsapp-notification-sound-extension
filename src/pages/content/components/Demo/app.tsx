@@ -22,7 +22,7 @@ export default function App() {
       const regex = /notification_.+\.mp3/
       return regex.test(asset.url)
     })
-    // Sometimes whatsapp fails to cache an audio asset in the first place
+    // Sometimes Whatsapp fails to cache an audio asset in the first place
     // thus leaving the asset.url undefined. In that case, fallback to
     // hardcoded URL
     const assetUrl =
@@ -43,7 +43,10 @@ export default function App() {
 
     // Update cache with the new audio
     await cache.delete(assetUrl)
-    await cache.put(assetUrl, newResponse)
+
+    if (selectedAudioUrl) {
+      await cache.put(assetUrl, newResponse)
+    }
   }
 
   // Listen to messages from the popup.tsx

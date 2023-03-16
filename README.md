@@ -13,6 +13,11 @@
 
 </div>
 
+## Adding a new mp3
+
+1. Add the mp3 file to the `src/assets/audio` folder
+2. 
+
 ## Table of Contents
 
 - [Intro](#intro)

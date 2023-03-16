@@ -1,9 +1,21 @@
+// Audio files
 import guitarAlertUrl from '@assets/audio/mixkit-guitar-notification-alert-2320.wav'
 import popAlertAudioUrl from '@assets/audio/mixkit-message-pop-alert-2354.mp3'
 import positiveAlertUrl from '@assets/audio/mixkit-positive-notification-951.wav'
 import startAlertUrl from '@assets/audio/mixkit-software-interface-start-2574.wav'
+import clop_1 from '@assets/audio/1.mp3'
+import bloop_2 from '@assets/audio/2.mp3'
+import ding_ding_3 from '@assets/audio/3.mp3'
+import some_notification_4 from '@assets/audio/4.mp3'
+import harp_5 from '@assets/audio/5.mp3'
+
+// Images
 import logo from '@assets/img/whatsound_logo.png'
+
+// CSS
 import '@pages/popup/Popup.scss'
+
+// Other
 import { useEffect, useState } from 'react'
 
 // Get unique extension string (URL)
@@ -23,56 +35,71 @@ const audioFilesMapping = [
     displayName: 'Start',
     fileUrl: startAlertUrl,
   },
+  {
+    displayName: 'Clop',
+    fileUrl: clop_1,
+  },
+  {
+    displayName: 'Bloop',
+    fileUrl: bloop_2,
+  },
+  {
+    displayName: 'Ding ding',
+    fileUrl: ding_ding_3,
+  },
+  {
+    displayName: 'Some notification',
+    fileUrl: some_notification_4,
+  },
+  {
+    displayName: 'Harp',
+    fileUrl: harp_5,
+  },
 ]
 
 const Popup = () => {
-  const [openTab, setOpenTab] = useState(0)
   // Check if the extension is opened within WhatsApp web tab.
   // (otherwise, it will not work)
+  const [openTabId, setOpenTabId] = useState(0)
   const [isWhatsAppWeb, setIsWhatsAppWeb] = useState(false)
+  
   // Get and set tab to send message to
-  console.log('should start useEffect')
   useEffect(() => {
     const savedAudio = localStorage.getItem('selectedAudioUrl')
     if (savedAudio) {
-      setselectedAudioUrl(savedAudio)
+      setSelectedAudioUrl(savedAudio)
     }
 
-    console.log('useEffect starting')
     const checkIsWhatsAppWeb = async () => {
-      console.log(1)
       // Get tab to send message to
       const openTabs = await new Promise((resolve) => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           resolve(tabs)
         })
       })
-      setOpenTab(openTabs[0].id)
+      setOpenTabId(openTabs[0].id)
 
-      console.log(2)
-
-      const response = await sendMessageToContentScript(openTab, {
+      const response = await sendMessageToContentScript(openTabs[0].id, {
         type: 'checkIfWhatsAppWeb',
       })
-      console.log(response)
-      response.isWhatsAppWeb === 'true'
-        ? setIsWhatsAppWeb(true)
-        : setIsWhatsAppWeb(false)
+
+      if (response.isWhatsAppWeb) {
+        setIsWhatsAppWeb(true)
+      } else {
+        setIsWhatsAppWeb(false)
+      }
     }
     checkIsWhatsAppWeb()
   }, [])
 
-  console.log('openTab: ', openTab)
-  console.log('isWhatsAppWeb: ', isWhatsAppWeb)
-
   // Display currently selected audio
-  const [selectedAudioUrl, setselectedAudioUrl] = useState('')
+  const [selectedAudioUrl, setSelectedAudioUrl] = useState('')
 
   const handleSelectAudio = async (audioUrl: string) => {
     // Set audio for the current page view
-    setselectedAudioUrl(audioUrl)
+    setSelectedAudioUrl(audioUrl)
     // Update cached audio
-    sendMessageToContentScript(openTab, {
+    sendMessageToContentScript(openTabId, {
       type: 'updateCachedAudio',
       extensionIdentifierUrl: extensionIdentifierUrl,
       selectedAudioUrl: audioUrl,
@@ -125,9 +152,9 @@ const Popup = () => {
   const renderInstructions = () => {
     return (
       <div id="instructions">
-        <h2>Please navigate to a WhatsApp Web page to change the settings!</h2>
+        <h2>Please go to WhatsApp Web page to change the settings!</h2>
         <p>
-          <i>(or refresh the page if you are already there)</i>
+          <i>(or <u>refresh</u> the page if you are already there)</i>
         </p>
       </div>
     )
@@ -137,19 +164,32 @@ const Popup = () => {
     return (
       <div id="titleInstructions">
         <ol>
-          <li>Select notification audio</li>
-          <li>Refresh WhatsApp web page</li>
+          <li><u>Select</u> notification audio</li>
+          <li><u>Refresh</u> WhatsApp web page</li>
           <li>Enjoy!</li>
         </ol>
+        <p id='reset-audio-tip'>To reset audio to default, please clear the browser cache.</p>
       </div>
     )
   }
+
+  // const renderResetAudioButton = () => {
+  //   return (
+  //     <button
+  //       className="button"
+  //       onClick={() => handleResetAudio()}
+  //     >
+  //       Set audio to original
+  //     </button>
+  //   )
+  // }
 
   return (
     <div className="App">
       <img src={logo} className="App-logo" alt="logo" />
       {isWhatsAppWeb && renderIntro()}
       {isWhatsAppWeb ? renderAudioButtons() : renderInstructions()}
+      {/* {isWhatsAppWeb && renderResetAudioButton()} */}
       <address>
         <a id="get-in-touch" href="mailto:dzenk.lukas@gmail.com" target="_top">
           {'>'}Get in touch{'<'}
