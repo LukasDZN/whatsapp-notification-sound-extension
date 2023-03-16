@@ -1,7 +1,7 @@
 {
-  "name": "whatsapp-notification-sound-extension",
+  "name": "WhatSound - Change WhatsApp Web notification sound",
   "version": "0.0.1",
-  "description": "An extension that allows you to change the notification sound of WhatsApp Web.",
+  "description": "WhatSound - Change WhatsApp Web notification sound",
   "license": "MIT",
   "repository": {
     "type": "git",
